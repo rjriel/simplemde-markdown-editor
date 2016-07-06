@@ -1,7 +1,7 @@
 /**
- * simplemde v1.11.2
- * Copyright Next Step Webs, Inc.
- * @link https://github.com/NextStepWebs/simplemde-markdown-editor
+ * simplemde-iframe v1.0.0
+ * Copyright 
+ * @link https://github.com/rjriel/simplemde-markdown-editor
  * @license MIT
  */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SimpleMDE = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -173,7 +173,7 @@ exports.kMaxLength = kMaxLength()
 function typedArraySupport () {
   try {
     var arr = new Uint8Array(1)
-    arr.foo = function () { return 42 }
+    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
     return arr.foo() === 42 && // typed array instances can be augmented
         typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
         arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
@@ -317,7 +317,7 @@ function allocUnsafe (that, size) {
   assertSize(size)
   that = createBuffer(that, size < 0 ? 0 : checked(size) | 0)
   if (!Buffer.TYPED_ARRAY_SUPPORT) {
-    for (var i = 0; i < size; i++) {
+    for (var i = 0; i < size; ++i) {
       that[i] = 0
     }
   }
@@ -495,14 +495,14 @@ Buffer.concat = function concat (list, length) {
   var i
   if (length === undefined) {
     length = 0
-    for (i = 0; i < list.length; i++) {
+    for (i = 0; i < list.length; ++i) {
       length += list[i].length
     }
   }
 
   var buffer = Buffer.allocUnsafe(length)
   var pos = 0
-  for (i = 0; i < list.length; i++) {
+  for (i = 0; i < list.length; ++i) {
     var buf = list[i]
     if (!Buffer.isBuffer(buf)) {
       throw new TypeError('"list" argument must be an Array of Buffers')
@@ -534,7 +534,6 @@ function byteLength (string, encoding) {
     switch (encoding) {
       case 'ascii':
       case 'binary':
-      // Deprecated
       case 'raw':
       case 'raws':
         return len
@@ -772,15 +771,16 @@ function arrayIndexOf (arr, val, byteOffset, encoding) {
   }
 
   var foundIndex = -1
-  for (var i = 0; byteOffset + i < arrLength; i++) {
-    if (read(arr, byteOffset + i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+  for (var i = byteOffset; i < arrLength; ++i) {
+    if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
       if (foundIndex === -1) foundIndex = i
-      if (i - foundIndex + 1 === valLength) return (byteOffset + foundIndex) * indexSize
+      if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
     } else {
       if (foundIndex !== -1) i -= i - foundIndex
       foundIndex = -1
     }
   }
+
   return -1
 }
 
@@ -845,7 +845,7 @@ function hexWrite (buf, string, offset, length) {
   if (length > strLen / 2) {
     length = strLen / 2
   }
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < length; ++i) {
     var parsed = parseInt(string.substr(i * 2, 2), 16)
     if (isNaN(parsed)) return i
     buf[offset + i] = parsed
@@ -1059,7 +1059,7 @@ function asciiSlice (buf, start, end) {
   var ret = ''
   end = Math.min(buf.length, end)
 
-  for (var i = start; i < end; i++) {
+  for (var i = start; i < end; ++i) {
     ret += String.fromCharCode(buf[i] & 0x7F)
   }
   return ret
@@ -1069,7 +1069,7 @@ function binarySlice (buf, start, end) {
   var ret = ''
   end = Math.min(buf.length, end)
 
-  for (var i = start; i < end; i++) {
+  for (var i = start; i < end; ++i) {
     ret += String.fromCharCode(buf[i])
   }
   return ret
@@ -1082,7 +1082,7 @@ function hexSlice (buf, start, end) {
   if (!end || end < 0 || end > len) end = len
 
   var out = ''
-  for (var i = start; i < end; i++) {
+  for (var i = start; i < end; ++i) {
     out += toHex(buf[i])
   }
   return out
@@ -1125,7 +1125,7 @@ Buffer.prototype.slice = function slice (start, end) {
   } else {
     var sliceLen = end - start
     newBuf = new Buffer(sliceLen, undefined)
-    for (var i = 0; i < sliceLen; i++) {
+    for (var i = 0; i < sliceLen; ++i) {
       newBuf[i] = this[i + start]
     }
   }
@@ -1352,7 +1352,7 @@ Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
 
 function objectWriteUInt16 (buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffff + value + 1
-  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; i++) {
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
     buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
       (littleEndian ? i : 1 - i) * 8
   }
@@ -1386,7 +1386,7 @@ Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert
 
 function objectWriteUInt32 (buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffffffff + value + 1
-  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; i++) {
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
     buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
   }
 }
@@ -1601,12 +1601,12 @@ Buffer.prototype.copy = function copy (target, targetStart, start, end) {
 
   if (this === target && start < targetStart && targetStart < end) {
     // descending copy from end
-    for (i = len - 1; i >= 0; i--) {
+    for (i = len - 1; i >= 0; --i) {
       target[i + targetStart] = this[i + start]
     }
   } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
     // ascending copy from start
-    for (i = 0; i < len; i++) {
+    for (i = 0; i < len; ++i) {
       target[i + targetStart] = this[i + start]
     }
   } else {
@@ -1667,7 +1667,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
 
   var i
   if (typeof val === 'number') {
-    for (i = start; i < end; i++) {
+    for (i = start; i < end; ++i) {
       this[i] = val
     }
   } else {
@@ -1675,7 +1675,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
       ? val
       : utf8ToBytes(new Buffer(val, encoding).toString())
     var len = bytes.length
-    for (i = 0; i < end - start; i++) {
+    for (i = 0; i < end - start; ++i) {
       this[i + start] = bytes[i % len]
     }
   }
@@ -1717,7 +1717,7 @@ function utf8ToBytes (string, units) {
   var leadSurrogate = null
   var bytes = []
 
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < length; ++i) {
     codePoint = string.charCodeAt(i)
 
     // is surrogate component
@@ -1792,7 +1792,7 @@ function utf8ToBytes (string, units) {
 
 function asciiToBytes (str) {
   var byteArray = []
-  for (var i = 0; i < str.length; i++) {
+  for (var i = 0; i < str.length; ++i) {
     // Node's code seems to be doing this and not & 0x7F..
     byteArray.push(str.charCodeAt(i) & 0xFF)
   }
@@ -1802,7 +1802,7 @@ function asciiToBytes (str) {
 function utf16leToBytes (str, units) {
   var c, hi, lo
   var byteArray = []
-  for (var i = 0; i < str.length; i++) {
+  for (var i = 0; i < str.length; ++i) {
     if ((units -= 2) < 0) break
 
     c = str.charCodeAt(i)
@@ -1820,7 +1820,7 @@ function base64ToBytes (str) {
 }
 
 function blitBuffer (src, dst, offset, length) {
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < length; ++i) {
     if ((i + offset >= dst.length) || (i >= src.length)) break
     dst[i + offset] = src[i]
   }
@@ -5255,10 +5255,23 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
     for (;;) {
       if (bidi ? to == from || to == moveVisually(lineObj, from, 1) : to - from <= 1) {
         var ch = x < fromX || x - fromX <= toX - x ? from : to;
+        var outside = ch == from ? fromOutside : toOutside
         var xDiff = x - (ch == from ? fromX : toX);
+        // This is a kludge to handle the case where the coordinates
+        // are after a line-wrapped line. We should replace it with a
+        // more general handling of cursor positions around line
+        // breaks. (Issue #4078)
+        if (toOutside && !bidi && !/\s/.test(lineObj.text.charAt(ch)) && xDiff > 0 &&
+            ch < lineObj.text.length && preparedMeasure.view.measure.heights.length > 1) {
+          var charSize = measureCharPrepared(cm, preparedMeasure, ch, "right");
+          if (innerOff <= charSize.bottom && innerOff >= charSize.top && Math.abs(x - charSize.right) < xDiff) {
+            outside = false
+            ch++
+            xDiff = x - charSize.right
+          }
+        }
         while (isExtendingChar(lineObj.text.charAt(ch))) ++ch;
-        var pos = PosWithInfo(lineNo, ch, ch == from ? fromOutside : toOutside,
-                              xDiff < -1 ? -1 : xDiff > 1 ? 1 : 0);
+        var pos = PosWithInfo(lineNo, ch, outside, xDiff < -1 ? -1 : xDiff > 1 ? 1 : 0);
         return pos;
       }
       var step = Math.ceil(dist / 2), middle = from + step;
@@ -5982,6 +5995,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
     // Let the drag handler handle this.
     if (webkit) display.scroller.draggable = true;
     cm.state.draggingText = dragEnd;
+    dragEnd.copy = mac ? e.altKey : e.ctrlKey
     // IE's approach to draggable
     if (display.scroller.dragDrop) display.scroller.dragDrop();
     on(document, "mouseup", dragEnd);
@@ -6212,7 +6226,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
       try {
         var text = e.dataTransfer.getData("Text");
         if (text) {
-          if (cm.state.draggingText && !(mac ? e.altKey : e.ctrlKey))
+          if (cm.state.draggingText && !cm.state.draggingText.copy)
             var selected = cm.listSelections();
           setSelectionNoUndo(cm.doc, simpleSelection(pos, pos));
           if (selected) for (var i = 0; i < selected.length; ++i)
@@ -11224,7 +11238,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
 
   // THE END
 
-  CodeMirror.version = "5.15.2";
+  CodeMirror.version = "5.16.0";
 
   return CodeMirror;
 });
@@ -12890,6 +12904,8 @@ var block = {
   text: /^[^\n]+/
 };
 
+block.iframe = /^\/i\/([^\n]+)/;
+
 block.bullet = /(?:[*+-]|\d+\.)/;
 block.item = /^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;
 block.item = replace(block.item, 'gm')
@@ -13032,6 +13048,18 @@ Lexer.prototype.token = function(src, top, bq) {
         });
       }
     }
+
+    if (cap = this.rules.iframe.exec(src)) {
+      src = src.substring(cap[0].length);
+      if (cap.length > 1) {
+        this.tokens.push({
+          type: 'iframe',
+          src: cap[1]
+        });
+      }
+      continue;
+    }
+
 
     // code
     if (cap = this.rules.code.exec(src)) {
@@ -13721,6 +13749,10 @@ Renderer.prototype.codespan = function(text) {
   return '<code>' + text + '</code>';
 };
 
+Renderer.prototype.iframe = function(src) {
+  return '<div class="markdown-iframe"><iframe frameborder="0" allowfullscreen src="' + src + '"></iframe></div>';
+};
+
 Renderer.prototype.br = function() {
   return this.options.xhtml ? '<br/>' : '<br>';
 };
@@ -13888,6 +13920,9 @@ Parser.prototype.tok = function() {
         body += this.renderer.tablerow(cell);
       }
       return this.renderer.table(header, body);
+    }
+    case 'iframe': {
+      return this.renderer.iframe(this.token.src);
     }
     case 'blockquote_start': {
       var body = '';
@@ -15000,7 +15035,7 @@ require("codemirror/addon/selection/mark-selection.js");
 require("codemirror/mode/gfm/gfm.js");
 require("codemirror/mode/xml/xml.js");
 var CodeMirrorSpellChecker = require("codemirror-spell-checker");
-var marked = require("marked");
+var marked = require("marked-iframe");
 
 
 // Some variables
@@ -17015,5 +17050,5 @@ SimpleMDE.prototype.toTextArea = function() {
 };
 
 module.exports = SimpleMDE;
-},{"./codemirror/tablist":19,"codemirror":10,"codemirror-spell-checker":4,"codemirror/addon/display/fullscreen.js":5,"codemirror/addon/display/placeholder.js":6,"codemirror/addon/edit/continuelist.js":7,"codemirror/addon/mode/overlay.js":8,"codemirror/addon/selection/mark-selection.js":9,"codemirror/mode/gfm/gfm.js":11,"codemirror/mode/markdown/markdown.js":12,"codemirror/mode/xml/xml.js":14,"marked":17}]},{},[20])(20)
+},{"./codemirror/tablist":19,"codemirror":10,"codemirror-spell-checker":4,"codemirror/addon/display/fullscreen.js":5,"codemirror/addon/display/placeholder.js":6,"codemirror/addon/edit/continuelist.js":7,"codemirror/addon/mode/overlay.js":8,"codemirror/addon/selection/mark-selection.js":9,"codemirror/mode/gfm/gfm.js":11,"codemirror/mode/markdown/markdown.js":12,"codemirror/mode/xml/xml.js":14,"marked-iframe":17}]},{},[20])(20)
 });

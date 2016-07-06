@@ -11,7 +11,7 @@ require("codemirror/addon/selection/mark-selection.js");
 require("codemirror/mode/gfm/gfm.js");
 require("codemirror/mode/xml/xml.js");
 var CodeMirrorSpellChecker = require("codemirror-spell-checker");
-var marked = require("marked");
+var marked = require("marked-iframe");
 
 
 // Some variables

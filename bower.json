@@ -1,11 +1,11 @@
 {
-	"name": "simplemde",
-	"version": "1.11.2",
-	"homepage": "https://github.com/NextStepWebs/simplemde-markdown-editor",
+	"name": "simplemde-iframe",
+	"version": "1.0.0",
+	"homepage": "https://github.com/rjriel/simplemde-markdown-editor",
 	"authors": [
-		"Wes Cossick <https://wescossick.com>"
+		"Rene-Jacques Riel"
 	],
-	"description": "A simple, beautiful, and embeddable JavaScript Markdown editor.",
+	"description": "A fork of the simplemde-markdown-editor repo that uses the marked-iframe library for iframe support.",
 	"main": ["src/js/simplemde.js", "src/css/simplemde.css"],
 	"keywords": [
 		"embeddable",

@@ -1,7 +1,7 @@
 {
-  "name": "simplemde",
-  "version": "1.11.2",
-  "description": "A simple, beautiful, and embeddable JavaScript Markdown editor. Features autosaving and spell checking.",
+  "name": "simplemde-iframe",
+  "version": "1.0.0",
+  "description": "A fork of the simplemde-markdown-editor repo that uses the marked-iframe library for iframe support.",
   "keywords": [
     "embeddable",
     "markdown",
@@ -9,21 +9,19 @@
     "javascript",
     "wysiwyg"
   ],
-  "homepage": "https://github.com/NextStepWebs/simplemde-markdown-editor",
+  "homepage": "https://github.com/rjriel/simplemde-markdown-editor",
   "main": "./src/js/simplemde.js",
   "license": "MIT",
-  "company": "Next Step Webs, Inc.",
   "author": {
-    "name": "Wes Cossick",
-    "url": "http://www.WesCossick.com"
+    "name": "Rene-Jacques Riel"
   },
   "bugs": {
-    "url": "https://github.com/NextStepWebs/simplemde-markdown-editor/issues"
+    "url": "https://github.com/rjriel/simplemde-markdown-editor/issues"
   },
   "dependencies": {
     "codemirror": "*",
     "codemirror-spell-checker": "*",
-    "marked": "*"
+    "marked-iframe": "^0.1.1"
   },
   "devDependencies": {
     "browserify": "*",
@@ -43,6 +41,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/NextStepWebs/simplemde-markdown-editor"
+    "url": "https://github.com/rjriel/simplemde-markdown-editor"
   }
 }
