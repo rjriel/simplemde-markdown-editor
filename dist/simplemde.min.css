@@ -1,5 +1,5 @@
 /**
- * simplemde-iframe v1.0.0
+ * simplemde-iframe v1.11.3
  * Copyright 
  * @link https://github.com/rjriel/simplemde-markdown-editor
  * @license MIT

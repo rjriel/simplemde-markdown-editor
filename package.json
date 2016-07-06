@@ -1,6 +1,6 @@
 {
   "name": "simplemde-iframe",
-  "version": "1.0.0",
+  "version": "1.11.3",
   "description": "A fork of the simplemde-markdown-editor repo that uses the marked-iframe library for iframe support.",
   "keywords": [
     "embeddable",
