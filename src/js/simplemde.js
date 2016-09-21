@@ -1408,6 +1408,10 @@ SimpleMDE.prototype.markdown = function(text) {
 			};
 		}
 
+		if(this.options && this.options.markedRenderer) {
+			markedOptions.renderer = this.options.markedRenderer;
+		}
+
 
 		// Set options
 		marked.setOptions(markedOptions);
